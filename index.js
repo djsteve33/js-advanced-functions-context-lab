@@ -8,6 +8,62 @@
  As a result, the lessons for this function will pass *and* it will be available
  for you to use if you need it!
  */
+let createEmployeeRecord = function (row) {
+    return {
+        firstName: row[0],
+        familyName: row[1],
+        title: row[2],
+        payPerHour: row[3],
+        timeInEvents: [],
+        timeOutEvents: []
+    }
+}
+
+let createEmployeeRecords = function (employeeRowInfo) {
+    return employeeRowInfo.map(function(row) {
+        return createEmployeeRecord(row)
+    })
+}
+
+let createTimeInEvent = function(dateStamp) {
+    let [date, hour] = dateStamp.split(' ')
+
+    this.timeInEvents.push({
+        type: "TimeIn",
+        hour: parseInt(hour, 10),
+        date,
+    })
+    return this
+}
+
+let createTimeOutEvent = function (dateStamp) {
+    let [date, hour] = dateStamp.split(' ')
+
+    this.timeOutEvents.push({
+        type: "TimeOut",
+        hour: parseInt(hour, 10),
+        date,
+    })
+    return this
+}
+
+let hoursWorkedOnDate = function (targetDate) {
+    let inEvent = this.timeInEvents.find(function(e) {
+        return e.date === targetDate
+    })
+
+    let outEvent = this.timeOutEvents.find(function(e) {
+        return e.date === targetDate
+    })
+
+    return (outEvent.hour - inEvent.hour) / 100
+}
+
+let wagesEarnedOnDate = function (targetDate) {
+let baseWage = hoursWorkedOnDate.call(this, targetDate) 
+    * this.payPerHour
+return parseFloat(baseWage.toString())
+}
 
 let allWagesFor = function () {
     let eligibleDates = this.timeInEvents.map(function (e) {
@@ -19,4 +75,16 @@ let allWagesFor = function () {
     }.bind(this), 0) // <== Hm, why did we need to add bind() there? We'll discuss soon!
 
     return payable
+}
+
+let findEmployeeByFirstName = function (srcArray, firstName) {
+    return srcArray.find(function(rec) {
+        return rec.firstName === firstName
+    })
+}
+
+let calculatePayroll = function (employeeRecords) {
+    return employeeRecords.reduce(function(memo, rec) {
+        return memo + allWagesFor.call(rec)
+    }, 0)
 }
